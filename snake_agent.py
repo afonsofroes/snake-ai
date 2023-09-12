@@ -5,11 +5,11 @@ import numpy as np
 from collections import deque
 from snake_env import SnakeAI, Direction, Point
 from snake_model import Linear_QNet, QTrainer
-from snake_helper import plot
+from snake_helper import plot, EXPERIMENT
 from snake_game import BLOCK_SIZE
 
-RECORD = 63
-STARTING_EPSILON = 1
+RECORD = 0
+STARTING_EPSILON = 80
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
 LR = 0.001
@@ -20,7 +20,7 @@ class Agent:
         self.epsilon = 0 # randomness
         self.gamma = 0.8 # discount rate
         self.memory = deque(maxlen=MAX_MEMORY) # popleft()
-        self.model = Linear_QNet(12, 256, 3)
+        self.model = Linear_QNet(11, 256, 3)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def get_state(self, game):
@@ -62,7 +62,7 @@ class Agent:
             game.food.y < game.head.y, # food up
             game.food.y > game.head.y, # food down
             # Score
-            game.score
+            #game.score
         ]
 
         return np.array(state, dtype=int)
@@ -106,8 +106,13 @@ def train():
     agent = Agent()
     game = SnakeAI()
 
-    if os.path.isfile('./snake_model/model.pth'):
-        agent.model.load()
+
+    if os.path.isfile(f'./snake_model/model_{EXPERIMENT}.pth'):
+        validation = input('Load model? (y/n): ')
+        if validation == 'y':
+            agent.model.load(file_name=f'model_{EXPERIMENT}.pth')
+            print('Model loaded')
+
 
     while True:
         # get old state
@@ -134,15 +139,18 @@ def train():
 
             if score > record:
                 record = score
-                agent.model.save()
+                agent.model.save(file_name=f'model_{EXPERIMENT}.pth')
 
             print('Game', agent.n_games, 'Score', score, 'Record', record)
-
+            #print(f'Reward: {reward}')
             plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_games
             plot_mean_scores.append(mean_score)
             plot(plot_scores, plot_mean_scores)
+            print(mean_score)
+
+
 
 if __name__ == '__main__':
     train()

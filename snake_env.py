@@ -23,7 +23,7 @@ BLUE2 = (0, 100, 255)
 BLACK = (0,0,0)
 
 BLOCK_SIZE = 20
-SPEED = 40
+SPEED = 100
 
 class SnakeAI:
 
@@ -60,25 +60,35 @@ class SnakeAI:
 
     def play_step(self, action):
         self.frame_iteration += 1
-        # 1. collect user input
+        # collect user input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
 
-        # 2. move
+        # move
         self._move(action) # update the head
         self.snake.insert(0, self.head)
 
-        # 3. check if game over
+        # check if game over
         reward = 0
         game_over = False
-        if self.is_collision() or self.frame_iteration > 100*len(self.snake):
+
+        # break if idle
+        if self.frame_iteration > 100*len(self.snake):
             game_over = True
-            reward = -15
+            reward = -1 - self.score
+            print('Timeout')
             return reward, game_over, self.score
 
-        # 4. place new food or just move
+        # break if collision
+        if self.is_collision():
+            game_over = True
+            reward = -10 - self.score
+            print('Collision')
+            return reward, game_over, self.score
+
+        # place new food or just move
         if self.head == self.food:
             self.score += 1
             reward = 10
@@ -86,10 +96,10 @@ class SnakeAI:
         else:
             self.snake.pop()
 
-        # 5. update ui and clock
+        # update ui and clock
         self._update_ui()
         self.clock.tick(SPEED)
-        # 6. return game over and score
+        # return game over and score
         return reward, game_over, self.score
 
     def is_collision(self, point=None):
@@ -148,5 +158,3 @@ class SnakeAI:
             y -= BLOCK_SIZE
 
         self.head = Point(x, y)
-
-
