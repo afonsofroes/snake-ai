@@ -2,6 +2,7 @@ import os
 import torch
 import random
 import numpy as np
+import csv
 from collections import deque
 from snake_env import SnakeAI, Direction, Point
 from snake_model import Linear_QNet, QTrainer
@@ -99,8 +100,8 @@ class Agent:
         return final_move
 
 def train():
-    plot_scores = []
-    plot_mean_scores = []
+    scores = []
+    mean_scores = []
     total_score = 0
     record = RECORD
     agent = Agent()
@@ -139,17 +140,19 @@ def train():
 
             if score > record:
                 record = score
-                agent.model.save(file_name=f'model_{EXPERIMENT}.pth')
+                agent.model.save(file_name=f'working_model/model_s{record}_n{agent.n_games}_{EXPERIMENT}.pth')
 
             print('Game', agent.n_games, 'Score', score, 'Record', record)
             #print(f'Reward: {reward}')
-            plot_scores.append(score)
+            scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_games
-            plot_mean_scores.append(mean_score)
-            plot(plot_scores, plot_mean_scores)
+            mean_scores.append(mean_score)
+            plot(scores, mean_scores)
             print(mean_score)
-
+            with open(f'training_scores.csv', 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([EXPERIMENT, score, mean_score])
 
 
 if __name__ == '__main__':

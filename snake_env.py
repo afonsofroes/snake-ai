@@ -30,6 +30,7 @@ class SnakeAI:
     def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
+
         # init display
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('Snake')
@@ -74,20 +75,6 @@ class SnakeAI:
         reward = 0
         game_over = False
 
-        # break if idle
-        if self.frame_iteration > 100*len(self.snake):
-            game_over = True
-            reward = -1 - self.score
-            print('Timeout')
-            return reward, game_over, self.score
-
-        # break if collision
-        if self.is_collision():
-            game_over = True
-            reward = -10 - self.score
-            print('Collision')
-            return reward, game_over, self.score
-
         # place new food or just move
         if self.head == self.food:
             self.score += 1
@@ -95,6 +82,22 @@ class SnakeAI:
             self._place_food()
         else:
             self.snake.pop()
+
+        # break if idle
+        if self.frame_iteration > 100*len(self.snake):
+            game_over = True
+            reward = -1 - self.frame_iteration
+            print('Timeout')
+            print('Reward: ', reward)
+            return reward, game_over, self.score
+
+        # break if collision
+        if self.is_collision():
+            game_over = True
+            reward = -10 - self.score
+            print('Collision')
+            print('Reward: ', reward)
+            return reward, game_over, self.score
 
         # update ui and clock
         self._update_ui()
@@ -134,15 +137,12 @@ class SnakeAI:
 
         if np.array_equal(action, [1, 0, 0]):
             new_direction = clockwise[index] # no change
-            last_direction = self.direction
         elif np.array_equal(action, [0, 1, 0]):
             next_index = (index + 1) % 4
             new_direction = clockwise[next_index] # right turn
-            last_direction = self.direction
         elif np.array_equal(action, [0, 0, 1]):
             next_index = (index - 1) % 4
             new_direction = clockwise[next_index] # left turn
-            last_direction = self.direction
 
         self.direction = new_direction
 

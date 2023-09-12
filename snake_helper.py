@@ -18,4 +18,4 @@ def plot(scores, mean_scores):
     plt.text(len(mean_scores)-1, mean_scores[-1], str(mean_scores[-1]))
     plt.show(block=False)
     plt.pause(0.1)
-    plt.savefig(f'training_graph_{EXPERIMENT}.png')
+    plt.savefig(f'snake_model/working_model/training_graph_{EXPERIMENT}.png')
