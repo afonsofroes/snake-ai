@@ -23,7 +23,7 @@ BLUE2 = (0, 100, 255)
 BLACK = (0,0,0)
 
 BLOCK_SIZE = 20
-SPEED = 100
+SPEED = 180
 
 class SnakeAI:
 
@@ -86,7 +86,7 @@ class SnakeAI:
         # break if idle
         if self.frame_iteration > 100*len(self.snake):
             game_over = True
-            reward = -1 - self.frame_iteration
+            reward = -1
             print('Timeout')
             print('Reward: ', reward)
             return reward, game_over, self.score
@@ -94,7 +94,7 @@ class SnakeAI:
         # break if collision
         if self.is_collision():
             game_over = True
-            reward = -10 - self.score
+            reward = -10
             print('Collision')
             print('Reward: ', reward)
             return reward, game_over, self.score

@@ -3,6 +3,7 @@ import torch
 import random
 import numpy as np
 import csv
+from datetime import datetime
 from collections import deque
 from snake_env import SnakeAI, Direction, Point
 from snake_model import Linear_QNet, QTrainer
@@ -21,7 +22,7 @@ class Agent:
         self.epsilon = 0 # randomness
         self.gamma = 0.8 # discount rate
         self.memory = deque(maxlen=MAX_MEMORY) # popleft()
-        self.model = Linear_QNet(11, 256, 3)
+        self.model = Linear_QNet(12, 256, 3)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
     def get_state(self, game):
@@ -63,7 +64,7 @@ class Agent:
             game.food.y < game.head.y, # food up
             game.food.y > game.head.y, # food down
             # Score
-            #game.score
+            game.score
         ]
 
         return np.array(state, dtype=int)
@@ -152,7 +153,7 @@ def train():
             print(mean_score)
             with open(f'training_scores.csv', 'a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([EXPERIMENT, score, mean_score])
+                writer.writerow([EXPERIMENT, score, mean_score, datetime.now()])
 
 
 if __name__ == '__main__':
